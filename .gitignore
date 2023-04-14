@@ -1,0 +1,21 @@
+# .gitignore
+
+# Python bytecode files
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Virtual environment
+myvenv/
+
+# Django files
+*.log
+*.pot
+*.pyc
+db.sqlite3
+media/
+
+# OS generated files
+.DS_Store
+Thumbs.db
