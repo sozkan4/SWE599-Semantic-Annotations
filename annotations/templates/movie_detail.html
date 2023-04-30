@@ -1,0 +1,16 @@
+{% extends "base_generic.html" %}
+
+{% block content %}
+  <h1>{{ object.title }}</h1>
+  <p><strong>Release Year:</strong> {{ object.release_year }}</p>
+  <p><strong>Genre:</strong> {{ object.genre }}</p>
+  <p><strong>Director:</strong> {{ object.director }}</p>
+  <p>{{ object.description }}</p>
+
+  <h2>Add Annotation</h2>
+  <form method="post" action="{% url 'annotations:annotation_create' object.pk %}">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Submit</button>
+  </form>
+{% endblock %}
