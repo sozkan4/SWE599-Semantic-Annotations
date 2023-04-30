@@ -1,4 +1,6 @@
-#!/Users/semihozkan/Desktop/SWE599_Project/SWE599-Semantic-Annotations/myvenv/bin/python3.11
+#!/bin/sh
+'''exec' "/Users/semihozkan/Desktop/SWE /SWE599_Project/SWE599-Semantic-Annotations/myvenv/bin/python3.11" "$0" "$@"
+' '''
 # -*- coding: utf-8 -*-
 import re
 import sys

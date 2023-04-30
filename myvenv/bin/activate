@@ -38,7 +38,7 @@ deactivate () {
 # unset irrelevant variables
 deactivate nondestructive
 
-VIRTUAL_ENV="/Users/semihozkan/Desktop/SWE599_Project/SWE599-Semantic-Annotations/myvenv"
+VIRTUAL_ENV="/Users/semihozkan/Desktop/SWE /SWE599_Project/SWE599-Semantic-Annotations/myvenv"
 export VIRTUAL_ENV
 
 _OLD_VIRTUAL_PATH="$PATH"
