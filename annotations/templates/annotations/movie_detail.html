@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <h1>{{ object.title }}</h1>
+    <p><strong>Release Year:</strong> {{ object.release_year }}</p>
+    <p><strong>Genre:</strong> {{ object.genre }}</p>
+    <p><strong>Director:</strong> {{ object.director }}</p>
+    <p>{{ object.description }}</p>
+
+    {% if user.is_authenticated %}
+        <a href="{% url 'annotations:annotation_create' movie_id=object.pk %}" class="btn btn-primary">Add Annotation</a>
+    {% endif %}
+{% endblock %}
