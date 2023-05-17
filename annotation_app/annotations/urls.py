@@ -1,17 +1,9 @@
-from django.urls import path
-from . import views
-from django.contrib.auth.views import LoginView, LogoutView
+from django.urls import path, re_path
 
-
-app_name = 'annotations'
+from .views import AnnotationDetail, AnnotationList, AnnotationSearch
 
 urlpatterns = [
-    path('', views.CustomUserCreateView.as_view(), name='register'),
-    path('movies/', views.MovieListView.as_view(), name='movies'),
-    path('movies/<int:movie_id>/', views.MovieDetailView.as_view(), name='movie_detail'),
-    path('movies/<int:movie_id>/annotate/', views.AnnotationCreateView.as_view(), name='add_annotation'),
-    path('accounts/login/', LoginView.as_view(template_name='login.html'), name='login'),
-    path('accounts/logout/', LogoutView.as_view(next_page='/'), name='logout'),
-    path('accounts/profile/', views.profile, name='profile'),
+    path("", AnnotationList.as_view(), name="annotations"),
+    path("search/", AnnotationSearch.as_view(), name="annotation_search"),
+    re_path(r"^(?P<annotation_id>[\w:/.#?!\-]+)/$", AnnotationDetail.as_view(), name="annotation_detail"),
 ]
-
