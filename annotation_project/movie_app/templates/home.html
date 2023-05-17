@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    Home | Infopackz
+{% endblock %}
+
+
+{% block body %}
+    <div class="container-fluid" style="position:absolute;">
+
+    <div class="jumbotron jumbotron-fluid">
+  <div class="container">
+    <h1 class="display-4">Infopackz</h1>
+   <p class="lead" style="display:inline;">Best way to interact with your community!</p>
+  </div>
+
+  <div class="container">
+    <div class="container" style="border-radius: 10px; box-shadow: 1px 1px 10px 1px black; background:rgb(243, 6, 6); padding-bottom:10px; margin-top:-130px;margin-left:500px; border: 1px solid rgb(9, 9, 9); width: 600px;">
+      <form action="{% url 'login' %}" method="post">
+        {% csrf_token %}
+  <div class="form-group">
+    <h1 class="display-6">Login</h1>
+    <hr>
+    <label for="exampleInputEmail1">Email address</label>
+    <input type="email" class="form-control" name="mail" placeholder="eg. john@gmail.com" style="width:500px;" id="exampleInputEmail1" aria-describedby="emailHelp" required>
+  </div>
+  <div class="form-group">
+    <label for="exampleInputPassword1">Password</label>
+    <input type="password" class="form-control" name="pwd" placeholder="eg. john2@85" style="width:500px;" id="exampleInputPassword1" required>
+  </div>
+
+  <input type="submit" class="btn btn-primary" value="Login">
+</form>
+</div>
+  </div>
+</div>
+
+<div class="container">
+  <h3 style="color: rgb(26, 211, 128);">Popular Posts: </h3>
+</div>
+<hr>
+{% for post in feature_post %}
+<div class="container">
+  <h2>{{post.title}}</h2>
+  <span class="text-muted">{{post.creation_date}}</span>
+  <span class="text-muted"> || By {{post.user.first_name}}</span>
+  <span class="text-muted"> || {{post.likes.count}} Likes</span>
+  <hr>
+  <p>{{post.content}}</p>
+</div>
+{% endfor %}
+
+
+{% endblock %}

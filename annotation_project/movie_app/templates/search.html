@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+
+{% block title %} Search | Infopackz{% endblock %}
+
+{% block body %}
+
+<div class="container my-2">
+
+    {% if search_result %}
+    <h1 style="display:inline-block;">Search Results for: </h1>&nbsp &nbsp &nbsp
+    <span class="display-4" style="color:rgb(7, 6, 6)">{{search_term}}</span>
+    <hr>
+    {% for result in search_result %}
+    <div class="card w-75 my-3" style="border: 2px solid;">
+  <div class="card-body">
+    <a href="{% url 'view_post' result.title %}"><h5 class="card-title">{{result.title}}</h5></a>
+    <span class="text-muted">{{result.creation_date}}</span>
+    <span class="text-muted"> · By <a href="{% url 'profile' result.user.first_name %}">{{result.user.first_name}} {{result.user.last_name}}</a></span>
+    <hr>
+    <p class="card-text">{{result.content | truncatewords:50}}</p>
+    <a href="{% url 'view_post' result.title %}" class="btn btn-primary">Read More</a>
+  </div>
+  </div>
+  {% endfor %}
+
+  {% else %}
+    <h1>No results found: <span class="display-4" style="color:rgb(9, 9, 9)">{{search_term}}</span></h1>
+    {% endif %}
+
+
+
+
+</div>
+
+
+
+
+
+
+{% endblock %}

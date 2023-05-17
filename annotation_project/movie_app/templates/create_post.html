@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+{% block title %} Write a Post | Infopackz {% endblock %}
+
+
+
+{% block body %}
+
+
+<div class="jumbotron jumbotron-fluid">
+    <div class="container-fluid" style="margin-top: -40px; background: white; box-shadow: 1px 1px 10px 1px black; padding: 10px; width: 800px;">
+        <form action="{% url 'post_created' %}" method="post">
+            {% csrf_token %}
+        <h1>Write a Post</h1>
+        <hr>
+
+         <div class="form-group">
+            <label for="exampleInputEmail1">Title</label>
+            <input type="text" style="border:1px solid;" name="title" class="form-control" style="width: 400px;" id="exampleInputEmail1" aria-describedby="emailHelp" required>
+        </div>
+
+        <div class="form-group">
+          <label for="exampleInputPassword1">Content</label>
+          <textarea style="height: 300px; border: 1px solid;" name="content" class="form-control" required></textarea>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Publish</button>
+        </form>
+    </div>
+
+</div>
+
+
+
+{% endblock %}

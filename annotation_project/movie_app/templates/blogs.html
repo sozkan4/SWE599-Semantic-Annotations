@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}
+    Blogs | Infopackz
+{% endblock %}
+
+
+{% block body %}
+
+    <div class="container my-2">
+
+
+    {% for post in user_posts %}
+    <div class="card w-75 my-3" style="border: 2px solid;">
+  <div class="card-body">
+    <a href="{% url 'view_post' post.title %}"><h5 class="card-title">{{post.title}}</h5></a>
+    <span class="text-muted">{{post.creation_date}}</span>
+
+    <span class="text-muted"> · By <img src="{% static post.user.profile_pic.url %}" width='30',height='30' style="border-radius:50%;"><a href="{% url 'profile' post.user.first_name %}">{{post.user.first_name}} {{post.user.last_name}}</a></span>
+    <span class="text-muted"> · {{post.likes.count }} Likes</span>
+    <hr>
+    <p class="card-text">{{post.content | truncatewords:50}}</p>
+    <a href="{% url 'view_post' post.title %}" class="btn btn-primary">Read More</a>
+  </div>
+  </div>
+  {% endfor %}
+
+</div>
+
+
+
+
+{% endblock %}
