@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% block title %}Settings | Infopackz {% endblock %}
+{% block title %}Settings | CineNote {% endblock %}
 
 {% block body %}
 
@@ -12,10 +12,10 @@
         <form action="{% url 'settings' request.session.user %}" method="post">
             {% csrf_token %}
             <h5>New Password: </h5>
-            <input type="text" name="pwd1" placeholder="eg. john123" class="form-control">
+            <input type="password" name="pwd1" placeholder="eg. john123" class="form-control">
             <br>
             <h5>Confirm Password: </h5>
-            <input type="text" name="pwd2" placeholder="eg. john123" class="form-control">
+            <input type="password" name="pwd2" placeholder="eg. john123" class="form-control">
             <br>
             <hr>
             <h5>New Email: </h5>

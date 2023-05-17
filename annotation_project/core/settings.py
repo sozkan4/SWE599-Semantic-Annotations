@@ -37,8 +37,9 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    "core",
-    "movie_app",
+    "annotations",
+    "annotation_app",
+    "annotation_project",
 ]
 
 MIDDLEWARE = [
