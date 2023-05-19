@@ -1,0 +1,17 @@
+django==3.2.18
+asgiref==3.3.2
+pip==23.0
+setuptools==60.2.0
+sqlparse==0.4.3
+tzdata==2022.6
+wheel==0.37.1
+Pillow==9.3.0
+django-taggit==1.2.0
+psycopg2==2.9.5
+factory-boy==3.2.1
+easy-thumbnails==2.8.1
+django-cors-headers==3.14.0
+django-extensions
+django-debug-toolbar
+django-sslserver
+requests>=2.26.0

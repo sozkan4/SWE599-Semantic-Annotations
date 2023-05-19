@@ -1,0 +1,22 @@
+version: '3'
+
+services:
+  application_server:
+    build:
+      context: ./application_server
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./application_server:/app
+    command: python manage.py runserver 0.0.0.0:8000
+
+  annotation_server:
+    build:
+      context: ./annotation_server
+      dockerfile: Dockerfile
+    ports:
+      - "8001:8001"
+    volumes:
+      - ./annotation_server:/app
+    command: python manage.py runserver 0.0.0.0:8001
