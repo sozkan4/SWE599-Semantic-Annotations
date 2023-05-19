@@ -1,6 +1,15 @@
-version: '3'
+version: '3.8'
 
 services:
+  db:
+    image: postgres:13-alpine
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    environment:
+      POSTGRES_DB: annotation_db
+      POSTGRES_USER: annotation_user
+      POSTGRES_PASSWORD: annotation_password
+
   application_server:
     build:
       context: ./application_server
@@ -10,6 +19,8 @@ services:
     volumes:
       - ./application_server:/app
     command: python manage.py runserver 0.0.0.0:8000
+    depends_on:
+      - db
 
   annotation_server:
     build:
@@ -20,3 +31,8 @@ services:
     volumes:
       - ./annotation_server:/app
     command: python manage.py runserver 0.0.0.0:8001
+    depends_on:
+      - db
+
+volumes:
+  postgres_data:
