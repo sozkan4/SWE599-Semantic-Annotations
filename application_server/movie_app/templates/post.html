@@ -49,11 +49,11 @@
                 <div class="w-75">
                     <hr>
                 </div>
-                <form action="{% url 'add_comment' post_data.title %}" method="post">
+                <form id="annotation-form" method="post">
                     {% csrf_token %}
-                    <textarea style="width:300px;" name="comment" placeholder="Add Comment..."></textarea>
+                    <textarea id="annotation-body" style="width:300px;" name="body" placeholder="Add Annotation..."></textarea>
                     <br><br>
-                    <input type="submit" name="" class="btn btn-primary" value="Add Comment">
+                    <input type="submit" name="" class="btn btn-primary" value="Add Annotation">
                 </form>
             </div>
         </div>
@@ -71,4 +71,34 @@
         </div>
     </div>
 </div>
+
+{% block javascript %}
+<script>
+document.getElementById('annotation-form').addEventListener('submit', function(event) {
+    event.preventDefault();
+    
+    let body = document.getElementById('annotation-body').value;
+    let target = "{{ post_data.id }}";  // assuming you're using the post ID as the annotation target
+    let annotation_id = Math.random().toString(36).substr(2, 9);  // generates a random ID for the annotation
+    
+    fetch('http://localhost:8001/annotations/', {  // replace with the URL of your annotation server
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': '{{ csrf_token }}'
+        },
+        body: JSON.stringify({
+            annotation_id: annotation_id,
+            body: body,
+            target: target
+        })
+    })
+    .then(response => response.json())
+    .then(data => console.log(data))
+    .catch((error) => {
+        console.error('Error:', error);
+    });
+});
+</script>
+{% endblock %}
 {% endblock %}
