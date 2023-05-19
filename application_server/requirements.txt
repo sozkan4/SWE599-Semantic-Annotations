@@ -12,6 +12,15 @@ rfc3987
 requests
 django-cors-headers==3.14.0
 requests==2.25.1
+django-bootstrap3==22.2
+django-braces==1.15.0
+django-ckeditor==6.5.1
+django-js-asset==2.0.0
+misaka==2.1.1
+Pillow==9.3.0
+psycopg2-binary==2.9.5
+pycparser==2.21
+python-dotenv==0.21.0
 
 # TODO: Add development packages here
 flake8
