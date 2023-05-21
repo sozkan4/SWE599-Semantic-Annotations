@@ -4,8 +4,24 @@ from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+
 from .models import Annotation
 from .serializers import AnnotationSerializer
+
+class AnnotationCreate(APIView):
+    """
+    Handles requests to create a new annotation.
+
+    POST: Creates a new annotation based on the data included in the request.
+    """
+
+    def post(self, request, format=None):
+        # Create a new annotation based on the request data
+        serializer = AnnotationSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class AnnotationList(APIView):
@@ -89,3 +105,4 @@ class AnnotationSearch(APIView):
         # Converts the annotations to JSON.
         serializer = AnnotationSerializer(annotations, many=True)
         return Response(serializer.data)
+
