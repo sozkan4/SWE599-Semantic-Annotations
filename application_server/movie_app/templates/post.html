@@ -73,31 +73,16 @@
 </div>
 
 {% block javascript %}
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
 <script>
-document.getElementById('annotation-form').addEventListener('submit', function(event) {
-    event.preventDefault();
-    
-    let body = document.getElementById('annotation-body').value;
-    let target = "{{ post_data.id }}";  // assuming you're using the post ID as the annotation target
-    let annotation_id = Math.random().toString(36).substr(2, 9);  // generates a random ID for the annotation
-    
-    fetch('http://localhost:8001/annotations/', {  // replace with the URL of your annotation server
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRFToken': '{{ csrf_token }}'
-        },
-        body: JSON.stringify({
-            annotation_id: annotation_id,
-            body: body,
-            target: target
-        })
-    })
-    .then(response => response.json())
-    .then(data => console.log(data))
-    .catch((error) => {
-        console.error('Error:', error);
-    });
+$(function() {
+  $('#annotation-form').annotator().annotator('addPlugin', 'Tags');
+
+  var availableTags = ["Tag1", "OtherTag", "Tag2"];
+
+  $('#annotation-form').data('annotator').plugins.Tags.input.autocomplete({
+    source: availableTags
+  });
 });
 </script>
 {% endblock %}
