@@ -49,10 +49,12 @@
                 <div class="w-75">
                     <hr>
                 </div>
-                <form id="annotation-form" method="post">
+                <form id="annotation-form" method="post" action="{% url 'annotation_create' %}">
                     {% csrf_token %}
-                    <textarea id="annotation-body" style="width:300px;" name="body" placeholder="Add Annotation..."></textarea>
+                    <textarea id="annotation-body" style="width:300px;" name="content" placeholder="Add Annotation..."></textarea>
                     <br><br>
+                    <input type="hidden" name="target" value="{{post_data.title}}">
+                    <input type="hidden" name="annotation_type" value="Comment">
                     <input type="submit" name="" class="btn btn-primary" value="Add Annotation">
                 </form>
             </div>
@@ -76,6 +78,26 @@
 <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
 <script>
 $(function() {
+  $('#annotation-form').submit(function(event) {
+    event.preventDefault();
+    var formData = $(this).serialize();
+    $.ajax({
+      url: $(this).attr('action'),
+      type: 'POST',
+      data: formData,
+      success: function(response) {
+        // Handle the success response
+        alert("Annotation added successfully!");
+        // Optionally, you can update the comments section with the new annotation
+        // You may need to modify the HTML structure to accommodate the new annotation
+      },
+      error: function(xhr, textStatus, error) {
+        // Handle the error response
+        alert("Failed to add annotation: " + error);
+      }
+    });
+  });
+
   $('#annotation-form').annotator().annotator('addPlugin', 'Tags');
 
   var availableTags = ["Tag1", "OtherTag", "Tag2"];
