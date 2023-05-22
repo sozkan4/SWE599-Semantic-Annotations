@@ -1,7 +1,8 @@
-from django.contrib import admin
-from django.urls import include, path
+from django.urls import path
+from .views import AnnotationList, AnnotationDetail, AnnotationSearch
 
 urlpatterns = [
-    path("admin/", admin.site.urls),
-    path("", include("annotations.urls"), name="annotations"),
+    path('', AnnotationList.as_view(), name='annotation-list'),
+    path('<int:pk>/', AnnotationDetail.as_view(), name='annotation-detail'),
+    path('search/', AnnotationSearch.as_view(), name='annotation-search'),
 ]

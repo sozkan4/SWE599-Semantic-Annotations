@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 
-{% block title %}View_Post | CineNote{% endblock %}
+{% block title %}View_Post | Infopackz{% endblock %}
 
 {% block body %}
 <div class="container">
@@ -11,7 +11,7 @@
                 <span class="text-muted">{{post_data.creation_date}}</span>&nbsp &nbsp
                 <span class="text-muted">By <a href="{% url 'profile' post_data.user.first_name %}">{{post_data.user.first_name}} {{post_data.user.last_name}}</a></span>
                 <hr>
-                <pre style="font-family:tahoma;"><p class="card-text">{{post_data.content|urlizetrunc:15}}</p></pre>
+                <pre style="font-family:tahoma;"><p class="card-text" id="elementToAnnotate">{{post_data.content|urlizetrunc:15}}</p></pre>
 
                 <form action="{% url 'like_post' post_data.title %}">
                     {% if liked %}
@@ -20,94 +20,114 @@
                         <button type="submit" class="btn btn-info" name="post_id">Like</button>
                     {% endif %}
                     {{post_data.likes.count }}  Likes
+
                 </form>
             </div>
         </div>
     </div>
 
     {% if request.session.user %}
-        <div class="container">
-            <div class="container my-2">
-                <h2>Comments</h2>
-                <div class="w-75">
-                    <hr>
-                </div>
-                <ul class="list-unstyled">
-                    {% if post_comments %}
-                        {% for comment in post_comments %}
-                            <li class="media">
-                                <div class="w-75" style="display:inline-block">
-                                    <h5 class="mt-0 mb-1">{{comment.name}}</h5>
-                                    <p>{{comment.comment}} </p>
-                                </div>
-                            </li>
-                        {% endfor %}
-                    {% else %}
-                        <h5>No Comments Yet.</h5>
-                    {% endif %}
-                </ul>
-                <div class="w-75">
-                    <hr>
-                </div>
-                <form id="annotation-form" method="post" action="{% url 'annotation_create' %}">
-                    {% csrf_token %}
-                    <textarea id="annotation-body" style="width:300px;" name="content" placeholder="Add Annotation..."></textarea>
-                    <br><br>
-                    <input type="hidden" name="target" value="{{post_data.title}}">
-                    <input type="hidden" name="annotation_type" value="Comment">
-                    <input type="submit" name="" class="btn btn-primary" value="Add Annotation">
-                </form>
+    <div class="container">
+        <div class="container my-2">
+            <h2>Comments</h2>
+            <div class="w-75">
+                <hr>
             </div>
+            <ul class="list-unstyled">
+                {% if post_comments %}
+                {% for comment in post_comments %}
+                <li class="media">
+                    <div class="w-75" style="display:inline-block">
+                        <h5 class="mt-0 mb-1">{{comment.name}}</h5>
+                        <p>{{comment.comment}} </p>
+                    </div>
+                </li>
+                {% endfor %}
+
+                {% else %}
+                <h5>No Comments Yet.</h5>
+                {% endif %}
+
+            </ul>
+            <div class="w-75">
+                <hr>
+            </div>
+            <form action="{% url 'add_comment' post_data.title %}" method="post">
+                {% csrf_token %}
+                <textarea style="width:300px;" name="comment" placeholder="Add Comment..."></textarea>
+                <br><br>
+                <input type="submit" name="" class="btn btn-primary" value="Add Comment">
+            </form>
+
         </div>
+    </div>
     {% endif %}
 
     <!--Related Posts-->
     <div class="container w-25" style="display:inline-block; position:absolute; top:70px; left:1000px;">
-      <div class="list-group">
+        <div class="list-group">
             <p class="list-group-item list-group-item-action active">
                 Related Posts
             </p>
             {% for post in all_posts %}
-                <button type="button" class="list-group-item list-group-item-action"><a href="{{post.title}}">{{post.title}}</a></button>
+            <button type="button" class="list-group-item list-group-item-action"><a href="{{post.title}}">{{post.title}}</a></button>
             {% endfor %}
         </div>
     </div>
 </div>
 
 {% block javascript %}
-<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-ajaxy/1.6.1/scripts/jquery.ajaxy.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/annotator@2.0.0-beta.2/dist/annotator.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/annotator/1.2.10/annotator-full.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/annotator/1.2.10/annotator.min.css" />
+
 <script>
-$(function() {
-  $('#annotation-form').submit(function(event) {
-    event.preventDefault();
-    var formData = $(this).serialize();
-    $.ajax({
-      url: $(this).attr('action'),
-      type: 'POST',
-      data: formData,
-      success: function(response) {
-        // Handle the success response
-        alert("Annotation added successfully!");
-        // Optionally, you can update the comments section with the new annotation
-        // You may need to modify the HTML structure to accommodate the new annotation
-      },
-      error: function(xhr, textStatus, error) {
-        // Handle the error response
-        alert("Failed to add annotation: " + error);
-      }
+    document.addEventListener('DOMContentLoaded', function () {
+        // Initialize Annotator.js
+        const annotator = new Annotator('#elementToAnnotate');
+        annotator.addPlugin('Tags');  // Add additional plugins as needed
+
+        // Set up the annotations endpoint URL
+        const annotationsUrl = "http://localhost:8081/annotations/";  // Replace with your annotation server URL
+
+        // Fetch and display annotations
+        fetch(annotationsUrl)
+            .then(response => response.json())
+            .then(data => {
+                annotator.loadAnnotations(data);
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+
+        // Listen for annotation create event
+        annotator.subscribe('annotations.create', (annotation) => {
+            // Send the created annotation to the server
+            fetch(annotationsUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': '{{ csrf_token }}'
+                },
+                body: JSON.stringify(annotation)
+            })
+                .then(response => response.json())
+                .then(data => {
+                    console.log('Annotation created:', data);
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+        });
+
+        // Configure annotation viewer for showing annotations in a popup
+        annotator.viewer.addField({
+            load: (field, annotation) => {
+                field.innerHTML = annotation.text;
+            },
+            viewer: 'hovercard'
+        });
     });
-  });
-
-  $('#annotation-form').annotator().annotator('addPlugin', 'Tags');
-
-  var availableTags = ["Tag1", "OtherTag", "Tag2"];
-
-  $('#annotation-form').data('annotator').plugins.Tags.input.autocomplete({
-    source: availableTags
-  });
-});
 </script>
 {% endblock %}
 {% endblock %}

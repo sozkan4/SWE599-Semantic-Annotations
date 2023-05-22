@@ -35,6 +35,7 @@ def view_post(request, post_title):
 
 
 
+
 def like_post(request, post_title):
     user = User.objects.get(first_name=request.session['user'])
     post = Post.objects.get(title=post_title)
@@ -283,3 +284,4 @@ def add_comment(request, post_title):
         create_comment = Comment(post=post, name=name, comment=comment)
         create_comment.save()
         return HttpResponseRedirect(reverse('view_post', args=[str(post_title)]))
+

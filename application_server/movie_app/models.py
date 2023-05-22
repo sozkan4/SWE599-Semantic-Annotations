@@ -4,6 +4,7 @@ from .validators import validate_annotation_type
 from ckeditor.fields import RichTextField
 from datetime import datetime
 
+
 class User(models.Model):
     first_name = models.CharField(max_length=100)
     last_name = models.CharField(max_length=100)
@@ -45,26 +46,3 @@ class Contact(models.Model):
         return self.name
 
 
-class Annotation(models.Model):
-    annotation_id = models.CharField(max_length=255, unique=True)
-    context = models.URLField(default="http://www.w3.org/ns/anno.jsonld", validators=[URLValidator()])
-    annotation_type = models.CharField(max_length=255, default="Annotation", validators=[validate_annotation_type])
-    body = models.JSONField()
-    target = models.JSONField()
-    creation_datetime = models.DateTimeField(auto_now_add=True)
-
-    class Meta:
-        ordering = ["creation_datetime"]
-        verbose_name = "annotation"
-        verbose_name_plural = "annotations"
-
-    @property
-    def as_dict(self):
-        annotation_dict = {
-            "@context": self.context,
-            "id": self.annotation_id,
-            "type": self.annotation_type,
-            "body": self.body,
-            "target": self.target,
-        }
-        return annotation_dict
