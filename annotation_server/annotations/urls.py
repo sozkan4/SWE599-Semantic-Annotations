@@ -5,6 +5,6 @@ from .views import AnnotationDetail, AnnotationList, AnnotationSearch, Annotatio
 urlpatterns = [
     path("", AnnotationList.as_view(), name="annotations"),
     path("search/", AnnotationSearch.as_view(), name="annotation_search"),
-    path("create/", AnnotationCreate.as_view(), name="annotation_create"),
-    re_path(r"^(?P<annotation_id>[\w:/.#?!\-]+)/$", AnnotationDetail.as_view(), name="annotation_detail"),
+    re_path(r"^(?P<pk>[\w:/.#?!\-]+)/$", AnnotationDetail.as_view(), name="annotation_detail"),
 ]
+

@@ -19,10 +19,6 @@ def home(request):
         return render(request, 'home.html', param)
 
 
-
-
-
-
 def view_post(request, post_title):
     get_post = Post.objects.get(title=post_title)
     all_rel_posts = Post.objects.filter(user__first_name=get_post.user)
