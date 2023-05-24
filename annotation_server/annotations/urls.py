@@ -1,6 +1,6 @@
 from django.urls import path, re_path
 
-from .views import AnnotationDetail, AnnotationList, AnnotationSearch, AnnotationCreate
+from .views import AnnotationDetail, AnnotationList, AnnotationSearch
 
 urlpatterns = [
     path("", AnnotationList.as_view(), name="annotations"),

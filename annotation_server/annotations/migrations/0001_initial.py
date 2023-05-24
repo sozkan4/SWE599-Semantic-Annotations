@@ -17,8 +17,7 @@ class Migration(migrations.Migration):
     initial = True
 
     dependencies = [
-        # Add the correct dependency for the previous migration
-        ('annotations', '000W_previous_migration'),
+
 
         # Add the dependency for the AUTH_USER_MODEL setting
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),

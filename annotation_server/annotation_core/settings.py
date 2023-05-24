@@ -80,15 +80,17 @@ WSGI_APPLICATION = 'annotation_core.wsgi.application'
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
 
 DATABASES = {
-        "default": {
-            "ENGINE": "django.db.backends.postgresql",
-            "NAME": "postgres",
-            "USER": "postgres",
-            "PASSWORD": "postgres",
-            "HOST": "annotation_db",
-            "PORT": "5432",
-        },
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'annotation_db',
+        'USER': 'annotation_user',
+        'PASSWORD': 'annotation_password',
+        'HOST': 'annotation_db',  # Use the service name defined in docker-compose.yml
+        'PORT': '5432',
     }
+}
+
+
 
 # Password validation
 # https://docs.djangoproject.com/en/3.2/ref/settings/#auth-password-validators

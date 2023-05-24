@@ -1,38 +1,43 @@
 version: '3.8'
-
 services:
-  db:
+  annotation_db:
     image: postgres:13-alpine
     volumes:
-      - postgres_data:/var/lib/postgresql/data/
+      - annotation_postgres_data:/var/lib/postgresql/data/
     environment:
       POSTGRES_DB: annotation_db
       POSTGRES_USER: annotation_user
       POSTGRES_PASSWORD: annotation_password
 
+  application_db:
+    image: postgres:13-alpine
+    volumes:
+      - application_postgres_data:/var/lib/postgresql/data/
+    environment:
+      POSTGRES_DB: application_db
+      POSTGRES_USER: application_user
+      POSTGRES_PASSWORD: application_password
+
   application_server:
     build:
       context: ./application_server
       dockerfile: Dockerfile
-    ports:
-      - "8000:8000"
-    volumes:
-      - ./application_server:/app
     command: python manage.py runserver 0.0.0.0:8000
     depends_on:
-      - db
+      - application_db
+    ports:
+      - "8000:8000"
 
   annotation_server:
     build:
       context: ./annotation_server
       dockerfile: Dockerfile
-    ports:
-      - "8001:8000"  # Corrected port mapping
-    volumes:
-      - ./annotation_server:/app
-    command: python manage.py runserver 0.0.0.0:8000  # Corrected port in the command
+    command: python manage.py runserver 0.0.0.0:8001
     depends_on:
-      - db
+      - annotation_db
+    ports:
+      - "8001:8001"
 
 volumes:
-  postgres_data:
+  annotation_postgres_data:
+  application_postgres_data:
