@@ -77,56 +77,66 @@
 </div>
 
 {% block javascript %}
-<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/annotator/1.2.10/annotator-full.min.js"></script>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/annotator/1.2.10/annotator.min.css" />
-
 <script>
     document.addEventListener('DOMContentLoaded', function () {
-        // Initialize Annotator.js
-        const annotator = new Annotator('#elementToAnnotate');
-        annotator.addPlugin('Tags');  // Add additional plugins as needed
+        const elementToAnnotate = document.getElementById('elementToAnnotate');
+        const annotationForm = document.createElement('form');
+        annotationForm.classList.add('mt-3');
 
-        // Set up the annotations endpoint URL
-        const annotationsUrl = "http://localhost:8081/annotations/";  // Replace with your annotation server URL
+        const annotationTextArea = document.createElement('textarea');
+        annotationTextArea.style.width = '100%';
+        annotationTextArea.style.height = '80px';
+        annotationTextArea.style.resize = 'vertical';
+        annotationTextArea.placeholder = 'Enter your annotation...';
+        annotationForm.appendChild(annotationTextArea);
 
-        // Fetch and display annotations
-        fetch(annotationsUrl)
-            .then(response => response.json())
-            .then(data => {
-                annotator.loadAnnotations(data);
-            })
-            .catch(error => {
-                console.error('Error:', error);
-            });
+        const submitButton = document.createElement('button');
+        submitButton.type = 'submit';
+        submitButton.textContent = 'Submit Annotation';
+        submitButton.classList.add('btn', 'btn-primary', 'mt-3');
+        annotationForm.appendChild(submitButton);
 
-        // Listen for annotation create event
-        annotator.subscribe('annotations.create', (annotation) => {
-            // Send the created annotation to the server
-            fetch(annotationsUrl, {
+        elementToAnnotate.parentElement.appendChild(annotationForm);
+
+        // Create an annotation
+        function createAnnotation(annotationData) {
+            // Send the annotation data to the annotation server
+            fetch('http://localhost:8001/annotations/', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'X-CSRFToken': '{{ csrf_token }}'
                 },
-                body: JSON.stringify(annotation)
+                body: JSON.stringify(annotationData),
             })
                 .then(response => response.json())
                 .then(data => {
                     console.log('Annotation created:', data);
+                    // Update the annotations on the page if needed
                 })
                 .catch(error => {
-                    console.error('Error:', error);
+                    console.error('Error creating annotation:', error);
                 });
+        }
+
+        // Handle form submission
+        annotationForm.addEventListener('submit', function(event) {
+            event.preventDefault();
+            const selectedText = window.getSelection().toString().trim();
+            const annotationText = annotationTextArea.value.trim();
+
+            if (selectedText.length > 0 && annotationText.length > 0) {
+                const annotationData = {
+                    text: selectedText,
+                    annotation: annotationText,
+                    // ... additional annotation data ...
+                };
+
+                createAnnotation(annotationData);
+                annotationTextArea.value = '';
+            }
         });
 
-        // Configure annotation viewer for showing annotations in a popup
-        annotator.viewer.addField({
-            load: (field, annotation) => {
-                field.innerHTML = annotation.text;
-            },
-            viewer: 'hovercard'
-        });
+        // ... rest of the code ...
     });
 </script>
 {% endblock %}
