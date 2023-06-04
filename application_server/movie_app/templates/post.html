@@ -1,6 +1,11 @@
 {% extends 'base.html' %}
 
-{% block title %}View_Post | Infopackz{% endblock %}
+{% load static %}
+{% block title %}View_Post | CineNote{% endblock %}
+
+{% block style %}
+    <link rel="stylesheet" href="{% static 'css/annotator.min.css' %}">
+{% endblock %}
 
 {% block body %}
 <div class="container">
@@ -20,7 +25,6 @@
                         <button type="submit" class="btn btn-info" name="post_id">Like</button>
                     {% endif %}
                     {{post_data.likes.count }}  Likes
-
                 </form>
             </div>
         </div>
@@ -37,28 +41,30 @@
                 {% if post_comments %}
                 {% for comment in post_comments %}
                 <li class="media">
-                    <div class="w-75" style="display:inline-block">
+                    <div class="media-body">
                         <h5 class="mt-0 mb-1">{{comment.name}}</h5>
-                        <p>{{comment.comment}} </p>
+                        <p>{{comment.comment}}</p>
+                        <hr>
                     </div>
                 </li>
                 {% endfor %}
-
                 {% else %}
-                <h5>No Comments Yet.</h5>
+                <li class="media">
+                    <div class="media-body">
+                        <p>No Comments Yet.</p>
+                        <hr>
+                    </div>
+                </li>
                 {% endif %}
-
             </ul>
-            <div class="w-75">
-                <hr>
-            </div>
+
             <form action="{% url 'add_comment' post_data.title %}" method="post">
                 {% csrf_token %}
-                <textarea style="width:300px;" name="comment" placeholder="Add Comment..."></textarea>
-                <br><br>
-                <input type="submit" name="" class="btn btn-primary" value="Add Comment">
+                <div class="form-group">
+                    <textarea class="form-control" style="width:300px;" name="comment" placeholder="Add Comment..."></textarea>
+                </div>
+                <input type="submit" class="btn btn-primary" value="Add Comment">
             </form>
-
         </div>
     </div>
     {% endif %}
@@ -77,67 +83,31 @@
 </div>
 
 {% block javascript %}
+<script src="{% static 'js/annotator.min.js' %}"></script>
 <script>
-    document.addEventListener('DOMContentLoaded', function () {
-        const elementToAnnotate = document.getElementById('elementToAnnotate');
-        const annotationForm = document.createElement('form');
-        annotationForm.classList.add('mt-3');
-
-        const annotationTextArea = document.createElement('textarea');
-        annotationTextArea.style.width = '100%';
-        annotationTextArea.style.height = '80px';
-        annotationTextArea.style.resize = 'vertical';
-        annotationTextArea.placeholder = 'Enter your annotation...';
-        annotationForm.appendChild(annotationTextArea);
-
-        const submitButton = document.createElement('button');
-        submitButton.type = 'submit';
-        submitButton.textContent = 'Submit Annotation';
-        submitButton.classList.add('btn', 'btn-primary', 'mt-3');
-        annotationForm.appendChild(submitButton);
-
-        elementToAnnotate.parentElement.appendChild(annotationForm);
-
-        // Create an annotation
-        function createAnnotation(annotationData) {
-            // Send the annotation data to the annotation server
-            fetch('http://localhost:8001/annotations/', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(annotationData),
-            })
-                .then(response => response.json())
-                .then(data => {
-                    console.log('Annotation created:', data);
-                    // Update the annotations on the page if needed
-                })
-                .catch(error => {
-                    console.error('Error creating annotation:', error);
-                });
-        }
-
-        // Handle form submission
-        annotationForm.addEventListener('submit', function(event) {
-            event.preventDefault();
-            const selectedText = window.getSelection().toString().trim();
-            const annotationText = annotationTextArea.value.trim();
-
-            if (selectedText.length > 0 && annotationText.length > 0) {
-                const annotationData = {
-                    text: selectedText,
-                    annotation: annotationText,
-                    // ... additional annotation data ...
-                };
-
-                createAnnotation(annotationData);
-                annotationTextArea.value = '';
+    window.onload = function () {
+        var app = new annotator.App();
+        app.include(annotator.ui.main, {
+            element: document.querySelector("#elementToAnnotate")
+        });
+        app.include(annotator.storage.http, {
+            prefix: 'http://localhost:8001/annotations/',
+            urls: {
+                create: '',  
+                read: ':id',  
+                update: ':id',  
+                destroy: ':id',  
+                search: 'search' 
             }
         });
-
-        // ... rest of the code ...
-    });
+        app.start()
+            .then(function () {
+                app.annotations.load({
+                    uri: window.location.href
+                });
+            });
+    }
 </script>
 {% endblock %}
+
 {% endblock %}

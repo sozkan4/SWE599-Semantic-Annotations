@@ -9,9 +9,8 @@ wheel==0.37.1
 django-taggit==1.2.0
 psycopg2==2.9.5
 rfc3987
-requests
-django-cors-headers==3.14.0
 requests==2.25.1
+django-cors-headers==3.14.0
 django-bootstrap3==22.2
 django-braces==1.15.0
 django-ckeditor==6.5.1

@@ -14,7 +14,7 @@ class Annotation(models.Model):
     annotation_type = models.CharField(max_length=255, default="Annotation", validators=[validate_annotation_type])
 
     # The body of the annotation, stored as JSON.
-    body = models.JSONField()
+    body = models.JSONField(default=dict) 
 
     # The target of the annotation, stored as JSON.
     target = models.JSONField()
