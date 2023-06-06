@@ -1,10 +1,9 @@
-from django.urls import path, re_path
-
-from .views import AnnotationDetail, AnnotationList, AnnotationSearch
+from django.urls import path
+from annotations.views import create_annotation, update_annotation, delete_annotation
 
 urlpatterns = [
-    path("", AnnotationList.as_view(), name="annotations"),
-    path("search/", AnnotationSearch.as_view(), name="annotation_search"),
-    re_path(r"^(?P<pk>[\w:/.#?!\-]+)/$", AnnotationDetail.as_view(), name="annotation_detail"),
+    # Other URL patterns
+    path('annotations/', create_annotation, name='create_annotation'),
+    path('annotations/<int:annotation_id>/', update_annotation, name='update_annotation'),
+    path('annotations/<int:annotation_id>/', delete_annotation, name='delete_annotation'),
 ]
-

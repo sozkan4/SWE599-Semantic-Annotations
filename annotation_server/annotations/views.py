@@ -1,19 +1,51 @@
-from django.db.models import Q
 from django.http import Http404, JsonResponse
+from django.views.decorators.csrf import csrf_exempt
 from rest_framework import status
-from rest_framework.response import Response
 from rest_framework.views import APIView
-
+from rest_framework.response import Response
+from django.db.models import Q
 from .models import Annotation
 from .serializers import AnnotationSerializer
 
 
-# http://127.0.0.1:81/
-class AnnotationList(APIView):
-    """
-    List all annotations, or create a new annotation.
-    """
+@csrf_exempt
+def create_annotation(request):
+    if request.method == 'POST':
+        serializer = AnnotationSerializer(data=request.POST)
+        if serializer.is_valid():
+            serializer.save()
+            return JsonResponse(serializer.data, status=201)
+        return JsonResponse(serializer.errors, status=400)
 
+
+@csrf_exempt
+def update_annotation(request, annotation_id):
+    try:
+        annotation = Annotation.objects.get(pk=annotation_id)
+    except Annotation.DoesNotExist:
+        return JsonResponse({"error": "Annotation does not exist"}, status=404)
+
+    if request.method == 'PUT':
+        serializer = AnnotationSerializer(annotation, data=request.PUT)
+        if serializer.is_valid():
+            serializer.save()
+            return JsonResponse(serializer.data)
+        return JsonResponse(serializer.errors, status=400)
+
+
+@csrf_exempt
+def delete_annotation(request, annotation_id):
+    try:
+        annotation = Annotation.objects.get(pk=annotation_id)
+    except Annotation.DoesNotExist:
+        return JsonResponse({"error": "Annotation does not exist"}, status=404)
+
+    if request.method == 'DELETE':
+        annotation.delete()
+        return JsonResponse({}, status=204)
+
+
+class AnnotationList(APIView):
     def get(self, request, format=None):
         annotations = Annotation.objects.all()
         serializer = AnnotationSerializer(annotations, many=True)
@@ -27,12 +59,7 @@ class AnnotationList(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-# http://127.0.0.1:81/<id> : http://example.org/anno2
 class AnnotationDetail(APIView):
-    """
-    Retrieve, update or delete a annotation instance.
-    """
-
     def get_object(self, pk):
         try:
             return Annotation.objects.get(pk=pk)
@@ -58,7 +85,6 @@ class AnnotationDetail(APIView):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
-# example: http://127.0.0.1:81/search/?query=TextualBody
 class AnnotationSearch(APIView):
     def get(self, request):
         query = request.GET.get("query", "").strip()
