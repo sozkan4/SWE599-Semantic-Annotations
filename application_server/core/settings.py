@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     "movie_app",
     "ckeditor",
 
+
    
 ]
 
