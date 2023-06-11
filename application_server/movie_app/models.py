@@ -3,6 +3,8 @@ from django.core.validators import URLValidator
 from .validators import validate_annotation_type
 from ckeditor.fields import RichTextField
 from datetime import datetime
+from django.db import models
+from taggit.managers import TaggableManager
 
 
 class User(models.Model):
@@ -15,14 +17,22 @@ class User(models.Model):
 
     def __str__(self):
         return self.first_name
+        
+class Tag(models.Model):
+    name = models.CharField(max_length=255)
+
+    def __str__(self):
+        return self.name
 
 
 class Post(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     title = models.CharField(max_length=100)
-    content = RichTextField(blank=True, null=True)
+    content = models.TextField(blank=True, null=True)
     creation_date = models.DateField(default=datetime.now)
     likes = models.ManyToManyField(User, related_name='likes')
+    web_link = models.URLField(max_length=200, blank=True, null=True)  # field for web link
+    wikidata_tags = models.CharField(max_length=500, blank=True, null=True)  # field for Wikidata tags
 
     def __str__(self):
         return self.title

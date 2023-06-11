@@ -6,7 +6,6 @@ setuptools==60.2.0
 sqlparse==0.4.3
 tzdata==2022.6
 wheel==0.37.1
-django-taggit==1.2.0
 psycopg2==2.9.5
 rfc3987
 requests
@@ -21,4 +20,8 @@ Pillow==9.3.0
 psycopg2-binary==2.9.5
 pycparser==2.21
 python-dotenv==0.21.0
-django-extensions
+urllib3==1.26.13
+django-environ==0.7.0
+django-model-utils~=4.3.1
+environ==1.0.0
+django-taggit==1.4.0

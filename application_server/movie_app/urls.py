@@ -34,6 +34,10 @@ urlpatterns = [
     path('logout/', views.logout, name='logout'),
     path('signup/', views.signup, name='signup'),
     path('contact/', views.contact, name='contact'),
+
+
+    path("annotations/create", views.create_annotation, name="create_annotation"),
+    path("annotations/search", views.get_annotations, name="get_annotations"),
 ]
 
 # if settings.DEBUG:

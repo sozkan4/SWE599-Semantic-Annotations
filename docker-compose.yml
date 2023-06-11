@@ -1,43 +1,29 @@
-version: '3.8'
+version: "3.8"
 services:
-  annotation_db:
-    image: postgres:13-alpine
+  app:
+    build: .  # build from Dockerfile in current directory
     volumes:
-      - annotation_postgres_data:/var/lib/postgresql/data/
-    environment:
-      POSTGRES_DB: annotation_db
-      POSTGRES_USER: annotation_user
-      POSTGRES_PASSWORD: annotation_password
-
-  application_db:
-    image: postgres:13-alpine
-    volumes:
-      - application_postgres_data:/var/lib/postgresql/data/
-    environment:
-      POSTGRES_DB: application_db
-      POSTGRES_USER: application_user
-      POSTGRES_PASSWORD: application_password
-
-  application_server:
-    build:
-      context: ./application_server
-      dockerfile: Dockerfile
-    command: python manage.py runserver 0.0.0.0:8000
-    depends_on:
-      - application_db
+      - ./application_server/:/app  #
+    restart: always
     ports:
-      - "8000:8000"
-
-  annotation_server:
-    build:
-      context: ./annotation_server
-      dockerfile: Dockerfile
-    command: python manage.py runserver 0.0.0.0:8001
+      - "8000:8000"  # map port 8000 on host to port 8000 in container
+    image: app:latest  # tag the image as app:latest
+    container_name: SWE599  # name the container as SWE574
+    command: >
+      sh -c "
+             python manage.py makemigrations &&
+             python manage.py migrate &&
+             python manage.py runserver 0.0.0.0:8000"
     depends_on:
-      - annotation_db
+      - db  # start the db container before starting the app container
+  db:
+    image: postgres:13-alpine  # use the latest postgres image
+#    volumes:
+#      - ./data/db:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_DB=postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
     ports:
-      - "8001:8001"
-
-volumes:
-  annotation_postgres_data:
-  application_postgres_data:
+      - "5432:5432"  # map port 8000 on host to port 8000 in container
+    container_name: postgres_db
