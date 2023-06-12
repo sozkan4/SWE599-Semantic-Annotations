@@ -44,9 +44,17 @@
     $(document).ready(function () {
         $('#semanticTagsCheck').on('change', function () {
             if (this.checked) {
+                $('#semanticTagsSection').show();
                 getWikidataInfo();
             } else {
+                $('#semanticTagsSection').hide();
                 $('#tagInfo').empty();
+            }
+        });
+
+        $('#tags').on('input', function () {
+            if ($('#semanticTagsCheck').is(':checked')) {
+                getWikidataInfo();
             }
         });
     });
@@ -72,12 +80,28 @@
                 dataType: 'jsonp',
                 success: function (data) {
                     if (data.search.length > 0) {
-                        var description = data.search[0].description || '';
+                        var selectId = 'select_' + tag.replace(/\s+/g, '_');  // Creating a unique ID for each select element
+                        var hiddenInputId = 'hidden_' + tag.replace(/\s+/g, '_');  // Creating a unique ID for each hidden input element
+
+                        // Add a hidden input for the selected explanation
+                        tagInfoDiv.append(`<input type="hidden" name="selected_explanations" id="${hiddenInputId}">`);
+
+                        var selectHtml = `<select id="${selectId}" class="form-control" style="width: 400px;">`;
+                        data.search.forEach(item => {
+                            selectHtml += `<option value="${item.description}">${item.label}</option>`;
+                        });
+                        selectHtml += '</select>';
                         var tagInfo = `
                             <p><strong>${tag}</strong>:</p>
-                            <p>${description}</p>
+                            ${selectHtml}
                         `;
                         tagInfoDiv.append(tagInfo);
+
+                        // Add event listener for the new dropdown
+                        $('#' + selectId).on('change', function () {
+                            // Update hidden input field when an option is selected
+                            $('#' + hiddenInputId).val($(this).val());
+                        });
                     }
                 },
                 error: function () {
@@ -88,5 +112,6 @@
         });
     }
 </script>
+
 
 {% endblock %}
