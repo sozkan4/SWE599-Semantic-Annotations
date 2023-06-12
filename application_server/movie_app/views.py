@@ -68,6 +68,7 @@ def view_post(request, post_title):
     }
     return render(request, 'post.html', param)
 
+
 def get_wikidata_explanations(wikidata_id):
     WIKIDATA_API_URL = "https://www.wikidata.org/w/api.php"
     params = {
