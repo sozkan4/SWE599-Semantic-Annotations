@@ -14,14 +14,22 @@
                 <input type="text" style="border:1px solid;" name="title" class="form-control" style="width: 400px;" id="exampleInputEmail1" aria-describedby="emailHelp" required>
             </div>
             <div class="form-group">
-                <label for="webLink">Web Link</label>
-                <input type="text" style="border:1px solid;" name="webLink" class="form-control" style="width: 400px;" id="webLink" placeholder="Enter web link">
+                <label for="webLink">Link</label>
+                <input type="text" style="border:1px solid;" name="web_link" class="form-control" style="width: 400px;" id="webLink" placeholder="Provide source Link">
             </div>
             <div class="form-group">
-                <label for="tags">Semantic Tags</label>
-                <input type="text" style="border:1px solid;" name="tags" class="form-control" style="width: 400px;" id="tags" placeholder="Enter semantic tags (comma separated)">
+                <label for="tags">Tags</label>
+                <input type="text" style="border:1px solid;" name="tags" class="form-control" style="width: 400px;" id="tags" placeholder="Provide a Tag">
             </div>
-            <div id="tagInfo">
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" value="" id="semanticTagsCheck">
+                <label class="form-check-label" for="semanticTagsCheck">
+                    Semantic Tags On/Off
+                </label>
+            </div>
+            <div id="semanticTagsSection" style="display: none;">
+                <hr>
+                <div id="tagInfo"></div>
             </div>
             <div class="form-group">
                 <label for="exampleInputPassword1">Content</label>
@@ -34,13 +42,23 @@
 
 <script>
     $(document).ready(function () {
-        $('#tags').on('input', getWikidataInfo);
+        $('#semanticTagsCheck').on('change', function () {
+            if (this.checked) {
+                getWikidataInfo();
+            } else {
+                $('#tagInfo').empty();
+            }
+        });
     });
 
-    function getWikidataInfo(event) {
-        var tags = event.target.value.split(',').map(tag => tag.trim());
+    function getWikidataInfo() {
+        var tags = $('#tags').val().trim().split(',').map(tag => tag.trim());
         var tagInfoDiv = $('#tagInfo');
-        tagInfoDiv.empty();  // Clear old tags
+        tagInfoDiv.empty();  // Clear old tag info
+
+        if (tags.length === 0) {
+            return;
+        }
 
         tags.forEach(tag => {
             $.ajax({
@@ -54,25 +72,11 @@
                 dataType: 'jsonp',
                 success: function (data) {
                     if (data.search.length > 0) {
-                        var selectId = "desc_" + tag.replace(/ /g, "_");  // Replace spaces with underscores
-                        var tagInfo = `<p><strong>${tag}</strong>: <select id="${selectId}">`;
-                        for (let result of data.search) {
-                            if (result.description) { // Check if the description exists before adding it to options
-                                tagInfo += `<option value="${result.id}">${result.description}</option>`;
-                            }
-                        }
-                        tagInfo += `</select></p>`;
-                        tagInfoDiv.append(tagInfo);
-                        var hiddenInputId = "hidden_" + tag.replace(/ /g, "_");
-                        tagInfoDiv.append(`<input type="hidden" id="${hiddenInputId}" name="${hiddenInputId}">`);
-
-                        // Ensure that the newly appended select dropdown is functional
-                        $('#' + selectId).on('change', function () {
-                            // Update the corresponding hidden input field whenever the dropdown changes
-                            $('#' + hiddenInputId).val($(this).val());
-                        });
-                    } else {
-                        var tagInfo = `<p><strong>${tag}</strong>: No semantic tag found</p>`;
+                        var description = data.search[0].description || '';
+                        var tagInfo = `
+                            <p><strong>${tag}</strong>:</p>
+                            <p>${description}</p>
+                        `;
                         tagInfoDiv.append(tagInfo);
                     }
                 },
