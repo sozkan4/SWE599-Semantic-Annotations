@@ -32,7 +32,7 @@
     </div>
 </div>
 
-<script>
+<<script>
     $(document).ready(function () {
         $('#tags').on('input', getWikidataInfo);
     });
@@ -58,7 +58,7 @@
                         var tagInfo = `<p><strong>${tag}</strong>: <select id="${selectId}">`;
                         for (let result of data.search) {
                             if (result.description) { // Check if the description exists before adding it to options
-                                tagInfo += `<option value="${result.description}">${result.description}</option>`;
+                                tagInfo += `<option value="${result.id}">${result.description}</option>`;
                             }
                         }
                         tagInfo += `</select></p>`;
@@ -72,15 +72,15 @@
                             $('#' + hiddenInputId).val($(this).val());
                         });
                     } else {
-                        tagInfoDiv.append('<p>No semantic tag found</p>');
+                        var tagInfo = `<p><strong>${tag}</strong>: No semantic tag found</p>`;
+                        tagInfoDiv.append(tagInfo);
                     }
                 },
                 error: function () {
-                    tagInfoDiv.append('<p>Error retrieving semantic tag</p>');
+                    var tagInfo = `<p><strong>${tag}</strong>: Error retrieving semantic tag</p>`;
+                    tagInfoDiv.append(tagInfo);
                 }
             });
         });
     }
 </script>
-
-{% endblock %}

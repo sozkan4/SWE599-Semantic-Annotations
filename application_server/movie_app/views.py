@@ -50,11 +50,15 @@ def view_post(request, post_title):
     except:
         return redirect('home')
 
-    tags = get_post.tags.all()  # getting all tags associated with this post
+    # Fetch the tags associated with the post
+    tags = get_post.tags.all()
+
+    # Fetch the wikidata explanations for the tags
     wikidata_explanations = []
     for tag in tags:
         wikidata_explanations.extend(get_wikidata_explanations(tag.wikidata_id))
 
+    # Get the web link of the post
     web_link = get_post.web_link
 
     param = {
@@ -67,6 +71,7 @@ def view_post(request, post_title):
         'web_link': web_link,
     }
     return render(request, 'post.html', param)
+
 
 
 def get_wikidata_explanations(wikidata_id):

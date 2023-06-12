@@ -15,9 +15,12 @@
             <div class="card-body" style="word-wrap: break-word;">
                 <h1 class="card-title display-3">{{ post_data.title }}</h1>
                 
-                {% if post_data.web_link %}
-                    <p><a href="{{ post_data.web_link }}" target="_blank" rel="noopener noreferrer">{{ post_data.web_link }}</a></p>
-                {% endif %}
+                <p class="web_links">
+                    Web Links:
+                    {% if web_link %}
+                        <a href="{{ web_link }}" target="_blank" rel="noopener noreferrer">{{ web_link }}</a>
+                    {% endif %}
+                </p>
                 
                 <p class="tags">
                     Tags:
