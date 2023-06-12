@@ -270,8 +270,20 @@ def post_created(request):
         post_content = request.POST.get('content')
         get_user = User.objects.get(first_name=request.session['user'])
         slug = slugify(post_title)  # Generate a unique slug based on the post title
+        
+        # Retrieve tags from the form submission
+        tags_input = request.POST.get('tags')
+        tags_list = [tag.strip() for tag in tags_input.split(',') if tag.strip()]
+        
+        # Get existing tags from the database
+        existing_tags = Tag.objects.filter(name__in=tags_list)
+        
         create_post = Post(user=get_user, title=post_title, content=post_content, creation_date=date.today(), slug=slug)
         create_post.save()
+        
+        # Add existing tags to the post
+        create_post.tags.add(*existing_tags)
+        
         messages.success(request, 'Post has been created successfully.')
         return redirect('write_post')
     else:
@@ -280,6 +292,7 @@ def post_created(request):
             'tags': tags
         }
         return render(request, 'create_post.html', context)
+
 
 
 def search(request):
