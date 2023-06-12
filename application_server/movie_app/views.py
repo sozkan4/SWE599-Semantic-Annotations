@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect
-from .models import Contact, Post, User, Comment
+from .models  import User, Post, Comment, Contact
 from django.contrib import messages
 from django.http import HttpResponse, HttpResponseRedirect
 from datetime import date
@@ -14,6 +14,9 @@ import uuid
 import os
 import environ
 import requests
+from .models import Tag
+from django.http import JsonResponse
+from django.utils.text import slugify
 
 
 # read environment variables
@@ -36,23 +39,6 @@ def home(request):
         return render(request, 'home.html', param)
 
 
-def get_wikidata_tags(content):
-    WIKIDATA_API_URL = "https://www.wikidata.org/w/api.php"  # Change to your Wikidata API URL if necessary
-    params = {
-        "action": "wbsearchentities",
-        "format": "json",
-        "language": "en",
-        "search": content,
-    }
-    response = requests.get(WIKIDATA_API_URL, params=params)
-
-    if response.status_code == 200:
-        data = response.json()
-        search_results = data.get('search', [])
-        return search_results
-
-    return []
-
 def view_post(request, post_title):
     get_post = Post.objects.get(title=post_title)
     all_rel_posts = Post.objects.filter(user__first_name=get_post.user)
@@ -64,11 +50,49 @@ def view_post(request, post_title):
     except:
         return redirect('home')
 
-    wikidata_tags = get_wikidata_tags(get_post.content)
+    tags = get_post.tags.all()  # getting all tags associated with this post
+    wikidata_explanations = []
+    for tag in tags:
+        wikidata_explanations.extend(get_wikidata_explanations(tag.wikidata_id))
 
-    param = {'post_data': get_post, 'all_posts':all_rel_posts,'post_comments':post_comments, 'liked':liked, 'wikidata_tags': wikidata_tags}
+    web_link = get_post.web_link
+
+    param = {
+        'post_data': get_post,
+        'all_posts': all_rel_posts,
+        'post_comments': post_comments,
+        'liked': liked,
+        'tags': tags,
+        'wikidata_explanations': wikidata_explanations,
+        'web_link': web_link,
+    }
     return render(request, 'post.html', param)
 
+def get_wikidata_explanations(wikidata_id):
+    WIKIDATA_API_URL = "https://www.wikidata.org/w/api.php"
+    params = {
+        "action": "wbgetentities",
+        "ids": wikidata_id,
+        "format": "json",
+        "languages": "en",
+        "props": "labels|descriptions",
+    }
+    response = requests.get(WIKIDATA_API_URL, params=params)
+
+    if response.status_code == 200:
+        data = response.json()
+        entities = data.get('entities', {})
+        entity = entities.get(wikidata_id, {})
+        label = entity.get('labels', {}).get('en', {}).get('value', '')
+        description = entity.get('descriptions', {}).get('en', {}).get('value', '')
+        explanation = {
+            'label': label,
+            'description': description,
+            'concepturi': f'https://www.wikidata.org/wiki/{wikidata_id}',
+        }
+        return [explanation]  # Return as a single-item list for compatibility
+
+    return []
 
 def like_post(request, post_title):
     user = User.objects.get(first_name=request.session['user'])
@@ -203,11 +227,34 @@ def delete_user(request, user):
     return HttpResponseRedirect(reverse('settings', args=[str(user)]))
 
 
-
-
-
 def write_post(request):
-    return render(request, 'create_post.html')
+    if request.method == 'POST':
+        post_title = request.POST.get('title')
+        post_content = request.POST.get('content')
+        web_link = request.POST.get('webLink')
+        tag_names = request.POST.get('tags').split(',')
+
+        # Create tags and fetch Wikidata explanations
+        tags = []
+        for tag_name in tag_names:
+            tag, created = Tag.objects.get_or_create(name=tag_name.strip())
+            tags.append(tag)
+            if created:
+                tag.wikidata_explanations = get_wikidata_explanations(tag_name)
+                tag.save()
+
+        # Save the post with created tags
+        get_user = User.objects.get(first_name=request.session['user'])
+        create_post = Post(user=get_user, title=post_title, content=post_content, web_link=web_link)
+        create_post.save()
+        create_post.tags.set(tags)
+
+        return render(request, 'create_post.html', {'tags': tags})
+    
+    else:
+        return render(request, 'create_post.html')
+
+
 
 
 
@@ -216,12 +263,17 @@ def post_created(request):
         post_title = request.POST.get('title')
         post_content = request.POST.get('content')
         get_user = User.objects.get(first_name=request.session['user'])
-        create_post = Post(user=get_user, title=post_title, content=post_content,creation_date=date.today())
+        slug = slugify(post_title)  # Generate a unique slug based on the post title
+        create_post = Post(user=get_user, title=post_title, content=post_content, creation_date=date.today(), slug=slug)
         create_post.save()
-        messages.success(request, 'Post has been created succsfully.')
-        return render(request, 'create_post.html')
+        messages.success(request, 'Post has been created successfully.')
+        return redirect('write_post')
     else:
-        return render(request, 'create_post.html')
+        tags = Tag.objects.all()
+        context = {
+            'tags': tags
+        }
+        return render(request, 'create_post.html', context)
 
 
 def search(request):
@@ -233,7 +285,6 @@ def search(request):
 
     param = {'search_result': search_result, 'search_term':query}
     return render(request, 'search.html', param)
-
 
 
 def signup(request):
@@ -258,7 +309,6 @@ def signup(request):
         return redirect('home')
 
 
-
 def login(request):
     if request.method == 'POST':
         mail = request.POST.get('mail')
@@ -275,20 +325,12 @@ def login(request):
         return redirect('home')
 
 
-
 def logout(request):
     try:
         del request.session['user']
     except:
         return redirect('login')
     return redirect('login')
-
-
-
-
-
-
-
 
 
 def contact(request):
@@ -305,9 +347,6 @@ def contact(request):
 
     else:
         return render(request, 'contact.html')
-
-
-
 
 #Create Comments
 def add_comment(request, post_title):

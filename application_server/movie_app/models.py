@@ -5,6 +5,7 @@ from ckeditor.fields import RichTextField
 from datetime import datetime
 from django.db import models
 from taggit.managers import TaggableManager
+from django.template.defaultfilters import slugify
 
 
 class User(models.Model):
@@ -20,6 +21,7 @@ class User(models.Model):
         
 class Tag(models.Model):
     name = models.CharField(max_length=255)
+    wikidata_id = models.CharField(max_length=50)  # stores Wikidata Q-ID
 
     def __str__(self):
         return self.name
@@ -32,7 +34,8 @@ class Post(models.Model):
     creation_date = models.DateField(default=datetime.now)
     likes = models.ManyToManyField(User, related_name='likes')
     web_link = models.URLField(max_length=200, blank=True, null=True)  # field for web link
-    wikidata_tags = models.CharField(max_length=500, blank=True, null=True)  # field for Wikidata tags
+    slug = models.SlugField(unique=True, max_length=100, blank=True)
+    tags = TaggableManager()
 
     def __str__(self):
         return self.title
