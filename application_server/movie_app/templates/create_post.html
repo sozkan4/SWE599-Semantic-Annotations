@@ -79,34 +79,34 @@
             },
             dataType: 'jsonp',
             success: function (data) {
-                if (data.search.length > 0) {
-                    var selectId = 'select_' + tag.replace(/\s+/g, '_');  // Creating a unique ID for each select element
-                    var selectHtml = `<select id="${selectId}" class="form-control" style="width: 400px;">`;
-                    data.search.forEach(item => {
-                        selectHtml += `<option value="${item.description}">${item.label}</option>`;
-                    });
-                    selectHtml += '</select>';
-                    var tagInfo = `
-                        <p><strong>${tag}</strong>:</p>
-                        ${selectHtml}
-                    `;
-                    tagInfoDiv.append(tagInfo);
+                    if (data.search.length > 0) {
+                        var selectId = "desc_" + tag.replace(/ /g, "_");  // Replace spaces with underscores
+                        var tagInfo = `<p><strong>${tag}</strong>: <select id="${selectId}">`;
+                        for (let result of data.search) {
+                            if (result.description) { // Check if the description exists before adding it to options
+                                tagInfo += `<option value="${result.description}">${result.description}</option>`;
+                            }
+                        }
+                        tagInfo += `</select></p>`;
+                        tagInfoDiv.append(tagInfo);
 
-                    // Add event listener for the new dropdown
-                    $('#' + selectId).on('change', function () {
-                        // Update hidden input field when an option is selected
-                        $('#' + tag.replace(/\s+/g, '_')).val($(this).val());
-                    });
+                        // Ensure that the newly appended select dropdown is functional
+                        $('#' + selectId).on('change', function () {
+                            // You can handle dropdown change event here
+                            console.log($(this).val());
+                        });
+                    } else {
+                        tagInfoDiv.append('<p>No semantic tag found</p>');
+                    }
+                },
+                error: function () {
+                    tagInfoDiv.append('<p>Error retrieving semantic tag</p>');
                 }
-            },
-            error: function () {
-                var tagInfo = `<p><strong>${tag}</strong>: Error retrieving semantic tag</p>`;
-                tagInfoDiv.append(tagInfo);
-            }
-        });
-    });
-}
+            });
+        }
 
+    );
+}
 </script>
 
 

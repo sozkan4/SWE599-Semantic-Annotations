@@ -282,7 +282,7 @@ def post_created(request):
         create_post.save()
         
         # Add existing tags to the post
-        create_post.tags.add(*existing_tags)
+        create_post.tags.set(existing_tags)  # Use set() instead of add() to replace all existing tags
         
         messages.success(request, 'Post has been created successfully.')
         return redirect('write_post')

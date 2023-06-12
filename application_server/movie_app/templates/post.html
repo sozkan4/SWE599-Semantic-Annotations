@@ -7,7 +7,6 @@
 {% block style %}
     <link rel="stylesheet" href="{% static 'css/annotator.min.css' %}">
 {% endblock %}
-
 {% block body %}
 <div class="container">
     <div class="container my-2">
@@ -25,17 +24,19 @@
                 <p class="tags">
                     Tags:
                     {% for tag in tags %}
-                        <a href="{% url 'post_by_tag' tag.slug %}" class="badge bg-danger"
-                           data-bs-toggle="tooltip" data-bs-placement="top"
-                           data-bs-custom-class="custom-tooltip"
-                           data-bs-title="{{ tag_description.description }}">
-                            {{ tag.name }}
-                        </a>
+                        <a href="{% url 'post_by_tag' tag.slug %}" class="badge bg-danger">{{ tag.name }}</a>
                     {% endfor %}
                 </p>
                 
-
-                <span class="text-muted">{{ post_data.creation_date }}</span>&nbsp;&nbsp;
+                <p class="wikidata_explanations">
+                    Wikidata Explanations:
+                    {% for explanation in wikidata_explanations %}
+                        <span>{{ explanation }}</span>
+                    {% endfor %}
+                </p>
+                
+                
+                <span class="text-muted">{{ post_data.created_at }}</span>&nbsp;&nbsp;
                 <span class="text-muted">By <a href="{% url 'profile' post_data.user.first_name %}">{{ post_data.user.first_name }} {{ post_data.user.last_name }}</a></span>
                 <hr>
                 <p class="card-text">{{ post_data.content }}</p>
@@ -104,7 +105,7 @@
     </div>
 </div>
 
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
 <script>
     $(document).ready(function () {
         var initialTags = $('#exampleTags').val().split(',').map(tag => tag.trim());
