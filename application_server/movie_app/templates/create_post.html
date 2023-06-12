@@ -60,57 +60,53 @@
     });
 
     function getWikidataInfo() {
-        var tags = $('#tags').val().trim().split(',').map(tag => tag.trim());
-        var tagInfoDiv = $('#tagInfo');
-        tagInfoDiv.empty();  // Clear old tag info
+    var tags = $('#tags').val().trim().split(',').map(tag => tag.trim());
+    var tagInfoDiv = $('#tagInfo');
+    tagInfoDiv.empty();  // Clear old tag info
 
-        if (tags.length === 0) {
-            return;
-        }
-
-        tags.forEach(tag => {
-            $.ajax({
-                url: 'https://www.wikidata.org/w/api.php',
-                data: {
-                    action: 'wbsearchentities',
-                    language: 'en',
-                    format: 'json',
-                    search: tag
-                },
-                dataType: 'jsonp',
-                success: function (data) {
-                    if (data.search.length > 0) {
-                        var selectId = 'select_' + tag.replace(/\s+/g, '_');  // Creating a unique ID for each select element
-                        var hiddenInputId = 'hidden_' + tag.replace(/\s+/g, '_');  // Creating a unique ID for each hidden input element
-
-                        // Add a hidden input for the selected explanation
-                        tagInfoDiv.append(`<input type="hidden" name="selected_explanations" id="${hiddenInputId}">`);
-
-                        var selectHtml = `<select id="${selectId}" class="form-control" style="width: 400px;">`;
-                        data.search.forEach(item => {
-                            selectHtml += `<option value="${item.description}">${item.label}</option>`;
-                        });
-                        selectHtml += '</select>';
-                        var tagInfo = `
-                            <p><strong>${tag}</strong>:</p>
-                            ${selectHtml}
-                        `;
-                        tagInfoDiv.append(tagInfo);
-
-                        // Add event listener for the new dropdown
-                        $('#' + selectId).on('change', function () {
-                            // Update hidden input field when an option is selected
-                            $('#' + hiddenInputId).val($(this).val());
-                        });
-                    }
-                },
-                error: function () {
-                    var tagInfo = `<p><strong>${tag}</strong>: Error retrieving semantic tag</p>`;
-                    tagInfoDiv.append(tagInfo);
-                }
-            });
-        });
+    if (tags.length === 0) {
+        return;
     }
+
+    tags.forEach(tag => {
+        $.ajax({
+            url: 'https://www.wikidata.org/w/api.php',
+            data: {
+                action: 'wbsearchentities',
+                language: 'en',
+                format: 'json',
+                search: tag
+            },
+            dataType: 'jsonp',
+            success: function (data) {
+                if (data.search.length > 0) {
+                    var selectId = 'select_' + tag.replace(/\s+/g, '_');  // Creating a unique ID for each select element
+                    var selectHtml = `<select id="${selectId}" class="form-control" style="width: 400px;">`;
+                    data.search.forEach(item => {
+                        selectHtml += `<option value="${item.description}">${item.label}</option>`;
+                    });
+                    selectHtml += '</select>';
+                    var tagInfo = `
+                        <p><strong>${tag}</strong>:</p>
+                        ${selectHtml}
+                    `;
+                    tagInfoDiv.append(tagInfo);
+
+                    // Add event listener for the new dropdown
+                    $('#' + selectId).on('change', function () {
+                        // Update hidden input field when an option is selected
+                        $('#' + tag.replace(/\s+/g, '_')).val($(this).val());
+                    });
+                }
+            },
+            error: function () {
+                var tagInfo = `<p><strong>${tag}</strong>: Error retrieving semantic tag</p>`;
+                tagInfoDiv.append(tagInfo);
+            }
+        });
+    });
+}
+
 </script>
 
 
