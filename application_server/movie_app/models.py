@@ -21,8 +21,8 @@ class User(models.Model):
         
 class Tag(models.Model):
     name = models.CharField(max_length=255)
-    wikidata_id = models.CharField(max_length=50)  # stores Wikidata Q-ID
-    wikidata_explanations = models.TextField(blank=True)  # stores explanations related to the tag
+    wikidata_id = models.CharField(max_length=50)
+    wikidata_explanations = models.TextField(blank=True)
 
     def __str__(self):
         return self.name
