@@ -52,16 +52,21 @@ def post_by_tag(request, tag_slug):
     return render(request, 'post_by_tag.html', context)
 
 def view_post(request, post_title):
-    get_post = Post.objects.get(title=post_title)
+    try:
+        get_post = Post.objects.get(title=post_title)
+    except Post.DoesNotExist:
+        return redirect('home')
+
     all_rel_posts = Post.objects.filter(user__first_name=get_post.user)
     post_comments = get_post.comment_set.all().order_by('-id')
+
+    # Check if the post is liked by the current user
     liked = False
     try:
         if get_post.likes.filter(first_name=request.session['user']).exists():
             liked = True
     except:
         return redirect('home')
-
     # Fetch the tags associated with the post
     tags = get_post.tags.all()
 
@@ -70,12 +75,14 @@ def view_post(request, post_title):
     for tag in tags:
         if hasattr(tag, 'wikidata_explanations'):
             wikidata_explanations.extend(tag.wikidata_explanations.split('\n'))
-
+        print("Tag:", tag.name)
+        print("Wikidata Explanations:",wikidata_explanations)
+        wikidata_explanations.extend(wikidata_explanations)
 
     # Get the web link of the post
     web_link = get_post.web_link
 
-    param = {
+    context = {
         'post_data': get_post,
         'all_posts': all_rel_posts,
         'post_comments': post_comments,
@@ -84,7 +91,8 @@ def view_post(request, post_title):
         'wikidata_explanations': wikidata_explanations,
         'web_link': web_link,
     }
-    return render(request, 'post.html', param)
+    return render(request, 'post.html', context)
+
 
 
 
