@@ -19,6 +19,8 @@ from django.http import JsonResponse
 from django.utils.text import slugify
 from django.contrib import messages
 from datetime import date
+from django.shortcuts import get_object_or_404
+
 
 
 # read environment variables
@@ -272,7 +274,7 @@ def write_post(request):
             if created:
                 explanations = get_wikidata_explanations(tag_name)  # Fetch the explanations
                 tag.wikidata_explanations = '\n'.join(explanations)  # Join the explanations as a single string
-                tag.save()
+                tag.save()  # Save the tag with the wikidata_explanations field
                 wikidata_explanations.extend(explanations)
 
         # Save the post with created tags
@@ -281,12 +283,10 @@ def write_post(request):
         create_post.save()
         create_post.tags.set(tags)
 
-        return render(request, 'create_post.html', {'tags': tags, 'wikidata_explanations': wikidata_explanations})
-    
+        return render(request, 'create_post.html', {'tags': tags, 'wikidata_explanations': wikidata_explanations, 'post_title': post_title, 'post_content': post_content, 'web_link': web_link})
+
     else:
         return render(request, 'create_post.html')
-
-
 
 
 
@@ -308,15 +308,28 @@ def post_created(request):
         # Set the web link
         web_link = request.POST.get('web_link')
 
-        # Retrieve tags from the form submission
+        # Retrieve tags and corresponding explanations from the form submission
         tags_input = request.POST.get('tags')
-        tags_list = [tag.strip() for tag in tags_input.split(',') if tag.strip()]
+        explanations_input = request.POST.get('explanations')
+
+        if tags_input and explanations_input:
+            tags_list = [tag.strip() for tag in tags_input.split(',') if tag.strip()]
+            explanations_list = [explanation.strip() for explanation in explanations_input.split(',') if explanation.strip()]
+        else:
+            tags_list = []
+            explanations_list = []
 
         create_post = Post(user=get_user, title=post_title, content=post_content, creation_date=date.today(), slug=slug, web_link=web_link)
         create_post.save()
 
-        # Set the tags
-        create_post.tags.set(*tags_list, clear=True)
+        # Set the tags with their explanations
+        for i in range(len(tags_list)):
+            tag_name = tags_list[i]
+            explanation = explanations_list[i]
+            tag = get_object_or_404(Tag, name=tag_name)
+            tag.wikidata_explanations = explanation
+            tag.save()
+            create_post.tags.add(tag)
 
         messages.success(request, 'Post has been created successfully.')
         return redirect('write_post')
@@ -326,6 +339,7 @@ def post_created(request):
             'tags': tags
         }
         return render(request, 'create_post.html', context)
+
 
 
 
