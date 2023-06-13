@@ -40,6 +40,16 @@ def home(request):
         param = {'feature_post': feature_post}
         return render(request, 'home.html', param)
 
+def post_by_tag(request, tag_slug):
+    # Retrieve posts with the specified tag
+    posts = Post.objects.filter(tags__slug=tag_slug)
+
+    context = {
+        'posts': posts,
+        'tag_slug': tag_slug,
+    }
+
+    return render(request, 'post_by_tag.html', context)
 
 def view_post(request, post_title):
     get_post = Post.objects.get(title=post_title)
@@ -58,9 +68,9 @@ def view_post(request, post_title):
     # Get the selected Wikidata explanations for the tags
     wikidata_explanations = []
     for tag in tags:
-        if tag.wikidata_explanations:
-            explanations = tag.wikidata_explanations.split('\n')
-            wikidata_explanations.extend(explanations)
+        if hasattr(tag, 'wikidata_explanations'):
+            wikidata_explanations.extend(tag.wikidata_explanations.split('\n'))
+
 
     # Get the web link of the post
     web_link = get_post.web_link

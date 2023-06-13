@@ -12,6 +12,8 @@ urlpatterns = [
     path('post/<str:post_title>/comment',  views.add_comment, name='add_comment'),
     path('profile/<str:user>', views.view_profile, name='profile'),
     path('profile/<str:user>/settings', views.settings, name='settings'),
+    path("tag/<slug:tag_slug>/", views.post_by_tag, name="post_by_tag"),
+
 
 
 
