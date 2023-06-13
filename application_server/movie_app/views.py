@@ -80,7 +80,9 @@ def view_post(request, post_title):
     # Get the Wikidata explanations for the tags
     wikidata_explanations = []
     for tag in tags:
-        wikidata_explanations.extend(tag.wikidata_explanations.split('\n'))
+        if hasattr(tag, 'wikidata_explanations'):
+            explanations = tag.wikidata_explanations.split('\n')
+            wikidata_explanations.extend(explanations)
 
     print("Tags:", tags)
     print("Wikidata Explanations:", wikidata_explanations)
@@ -95,9 +97,6 @@ def view_post(request, post_title):
         'web_link': web_link,
     }
     return render(request, 'post.html', context)
-
-
-
 
 
 
@@ -266,19 +265,24 @@ def write_post(request):
         post_title = request.POST.get('title')
         post_content = request.POST.get('content')
         web_link = request.POST.get('webLink')
-        tag_names = request.POST.get('tags').split(',')
+        tag_inputs = request.POST.get('tags').split(',')
 
-        # Create tags and fetch Wikidata explanations
+        # Create or retrieve tags and fetch Wikidata explanations
         tags = []
         wikidata_explanations = []
-        for tag_name in tag_names:
-            tag, created = Tag.objects.get_or_create(name=tag_name.strip())
+        for tag_input in tag_inputs:
+            tag_name, explanation = tag_input.split(':')
+            tag_name = tag_name.strip()
+            explanation = explanation.strip()
+
+            tag, created = Tag.objects.get_or_create(name=tag_name)
             tags.append(tag)
+
             if created:
-                explanations = get_wikidata_explanations(tag_name)  # Fetch the explanations
-                tag.wikidata_explanations = '\n'.join(explanations)  # Join the explanations as a single string
-                tag.save()  # Save the tag with the wikidata_explanations field
-                wikidata_explanations.extend(explanations)
+                tag.wikidata_explanations = explanation
+                tag.save()
+                wikidata_explanations.append(tag.wikidata_explanations)
+
 
         # Save the post with created tags
         get_user = User.objects.get(first_name=request.session['user'])
@@ -289,7 +293,11 @@ def write_post(request):
         return render(request, 'create_post.html', {'tags': tags, 'wikidata_explanations': wikidata_explanations, 'post_title': post_title, 'post_content': post_content, 'web_link': web_link})
 
     else:
-        return render(request, 'create_post.html')
+        tags = Tag.objects.all()
+        context = {
+            'tags': tags
+        }
+        return render(request, 'create_post.html', context)
 
 
 
@@ -323,6 +331,7 @@ def post_created(request):
             tags_list = []
             explanations_list = []
 
+        # Create the post
         create_post = Post(user=get_user, title=post_title, content=post_content, creation_date=date.today(), slug=slug, web_link=web_link)
         create_post.save()
 
@@ -343,6 +352,7 @@ def post_created(request):
             'tags': tags
         }
         return render(request, 'create_post.html', context)
+
 
 
 
