@@ -17,6 +17,8 @@ import requests
 from .models import Tag
 from django.http import JsonResponse
 from django.utils.text import slugify
+from django.contrib import messages
+from datetime import date
 
 
 # read environment variables
@@ -263,27 +265,34 @@ def write_post(request):
 
 
 
-
 def post_created(request):
     if request.method == 'POST':
         post_title = request.POST.get('title')
         post_content = request.POST.get('content')
         get_user = User.objects.get(first_name=request.session['user'])
-        slug = slugify(post_title)  # Generate a unique slug based on the post title
-        
+        base_slug = slugify(post_title)  # Generate a base slug based on the post title
+
+        # Check if a post with the same base slug already exists
+        existing_posts = Post.objects.filter(slug__startswith=base_slug)
+        if existing_posts.exists():
+            # Append a unique identifier to the base slug
+            slug = f"{base_slug}-{existing_posts.count() + 1}"
+        else:
+            slug = base_slug
+
+        # Set the web link
+        web_link = request.POST.get('web_link')
+
         # Retrieve tags from the form submission
         tags_input = request.POST.get('tags')
         tags_list = [tag.strip() for tag in tags_input.split(',') if tag.strip()]
-        
-        # Get existing tags from the database
-        existing_tags = Tag.objects.filter(name__in=tags_list)
-        
-        create_post = Post(user=get_user, title=post_title, content=post_content, creation_date=date.today(), slug=slug)
+
+        create_post = Post(user=get_user, title=post_title, content=post_content, creation_date=date.today(), slug=slug, web_link=web_link)
         create_post.save()
-        
-        # Add existing tags to the post
-        create_post.tags.set(existing_tags)  # Use set() instead of add() to replace all existing tags
-        
+
+        # Set the tags
+        create_post.tags.set(*tags_list, clear=True)
+
         messages.success(request, 'Post has been created successfully.')
         return redirect('write_post')
     else:
@@ -292,6 +301,8 @@ def post_created(request):
             'tags': tags
         }
         return render(request, 'create_post.html', context)
+
+
 
 
 
