@@ -7,6 +7,7 @@
 {% block style %}
     <link rel="stylesheet" href="{% static 'css/annotator.min.css' %}">
 {% endblock %}
+
 {% block body %}
 <div class="container">
     <div class="container my-2">
@@ -34,7 +35,6 @@
                         <span>{{ explanation }}</span>
                     {% endfor %}
                 </p>
-                
                 
                 <span class="text-muted">{{ post_data.created_at }}</span>&nbsp;&nbsp;
                 <span class="text-muted">By <a href="{% url 'profile' post_data.user.first_name %}">{{ post_data.user.first_name }} {{ post_data.user.last_name }}</a></span>

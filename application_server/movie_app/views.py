@@ -55,10 +55,12 @@ def view_post(request, post_title):
     # Fetch the tags associated with the post
     tags = get_post.tags.all()
 
-    # Fetch the wikidata explanations for the tags
+    # Get the selected Wikidata explanations for the tags
     wikidata_explanations = []
     for tag in tags:
-        wikidata_explanations.extend(get_wikidata_explanations(tag.wikidata_id))
+        if tag.wikidata_explanations:
+            explanations = tag.wikidata_explanations.split('\n')
+            wikidata_explanations.extend(explanations)
 
     # Get the web link of the post
     web_link = get_post.web_link
@@ -73,6 +75,7 @@ def view_post(request, post_title):
         'web_link': web_link,
     }
     return render(request, 'post.html', param)
+
 
 
 
@@ -244,12 +247,15 @@ def write_post(request):
 
         # Create tags and fetch Wikidata explanations
         tags = []
+        wikidata_explanations = []
         for tag_name in tag_names:
             tag, created = Tag.objects.get_or_create(name=tag_name.strip())
             tags.append(tag)
             if created:
-                tag.wikidata_explanations = get_wikidata_explanations(tag_name)
+                explanations = get_wikidata_explanations(tag_name)  # Fetch the explanations
+                tag.wikidata_explanations = '\n'.join(explanations)  # Join the explanations as a single string
                 tag.save()
+                wikidata_explanations.extend(explanations)
 
         # Save the post with created tags
         get_user = User.objects.get(first_name=request.session['user'])
@@ -257,10 +263,11 @@ def write_post(request):
         create_post.save()
         create_post.tags.set(tags)
 
-        return render(request, 'create_post.html', {'tags': tags})
+        return render(request, 'create_post.html', {'tags': tags, 'wikidata_explanations': wikidata_explanations})
     
     else:
         return render(request, 'create_post.html')
+
 
 
 
