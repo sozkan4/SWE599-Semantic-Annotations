@@ -1,5 +1,6 @@
 from django.http import Http404, JsonResponse
 from django.views.decorators.csrf import csrf_exempt
+import json
 from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -26,7 +27,11 @@ def update_annotation(request, annotation_id):
         return JsonResponse({"error": "Annotation does not exist"}, status=404)
 
     if request.method == 'PUT':
-        serializer = AnnotationSerializer(annotation, data=request.PUT)
+        try:
+            data = json.loads(request.body.decode("utf-8"))
+        except json.JSONDecodeError:
+            data = {}
+        serializer = AnnotationSerializer(annotation, data=data)
         if serializer.is_valid():
             serializer.save()
             return JsonResponse(serializer.data)
