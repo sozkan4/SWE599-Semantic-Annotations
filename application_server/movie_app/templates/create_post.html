@@ -4,7 +4,7 @@
 {% block body %}
 
 <div class="jumbotron jumbotron-fluid">
-    <div class="container-fluid" style="margin-top: -40px; background: white; box-shadow: 1px 1px 10px 1px black; padding: 10px; width: 800px;">
+    <div class="container-fluid themed-container" style="margin-top: -40px; box-shadow: 1px 1px 10px 1px black; padding: 10px; width: 800px;">
         <form id="postForm" action="{% url 'post_created' %}" method="post">
             {% csrf_token %}
             <h1>Write a Post</h1>
